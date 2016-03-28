@@ -4,56 +4,47 @@ LANG: JAVA
 TASK: gift1
 */
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+import java.util.HashMap;
 import java.util.StringTokenizer;
 
 class gift1 {
-    static String [] name;
-    static int [] initialMoney;
-    static int [] finalMoney;
-    
-    public static int nameToIndex (String n) {
-        for (int i=0;i<name.length;i++) {
-            if (name[i].equals(n)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-    
+	
     public static void main(String[] args) throws IOException {
         BufferedReader br=new BufferedReader(new FileReader("gift1.in"));
-        int size=Integer.parseInt(br.readLine());
-        name=new String [size];
-        initialMoney=new int [size];
-        finalMoney=new int [size];
-        for (int i=0;i<size;i++) {
-            name[i]=br.readLine();
+        HashMap<String,Integer> map=new HashMap<String,Integer> ();
+        int peopleCount=Integer.parseInt(br.readLine());
+        String [] s=new String[peopleCount];
+        for (int i=0;i<peopleCount;i++) {
+        	s[i]=br.readLine();
+        	map.put(s[i], 0);
         }
-        for (int i=0;i<size;i++) {
-            int index=nameToIndex(br.readLine());
-            StringTokenizer st=new StringTokenizer(br.readLine());
-            initialMoney[index]=Integer.parseInt(st.nextToken());
-            int toGiveNo=Integer.parseInt(st.nextToken());
-            if (toGiveNo>0) {
-                finalMoney[index]=finalMoney[index]+(initialMoney[index]%toGiveNo);
-                int targetIndex;
-                int moneyToGive=initialMoney[index]/toGiveNo;
-                for (int loop=0;loop<toGiveNo;loop++) {
-                    targetIndex=nameToIndex(br.readLine());
-                    finalMoney[targetIndex]=finalMoney[targetIndex]+moneyToGive;
-                }
-            }
+        for (int i=0;i<peopleCount;i++) {
+        	String giver=br.readLine();
+        	StringTokenizer st=new StringTokenizer(br.readLine());
+        	int amount=Integer.parseInt(st.nextToken());
+        	int giveToCount=Integer.parseInt(st.nextToken());
+        	if (giveToCount>0) {
+        		amount=amount/giveToCount*giveToCount;
+        		map.put(giver, map.get(giver)-amount);
+        		amount/=giveToCount;
+        		for (int i2=0;i2<giveToCount;i2++) {
+        			String receiver=br.readLine();
+            		map.put(receiver, map.get(receiver)+amount);
+        		}
+        	}
         }
+        
         PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter("gift1.out")));
-        for (int i=0;i<size;i++) {
-            pw.println(name[i]+" "+(finalMoney[i]-initialMoney[i]));
+        for (int i=0;i<peopleCount;i++) {
+        	pw.print(s[i]);
+        	pw.print(" ");
+        	pw.println(map.get(s[i]));
         }
         pw.close();
-        System.exit(0);
     }
 }

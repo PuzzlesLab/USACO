@@ -12,62 +12,39 @@ import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
 class dualpal {
-    
-    public static boolean isPalindrome (String s) {
-        char [] c=s.toCharArray();
-        int max=c.length-1;
-        for (int i=0;i<c.length/2;i++) {
-            if (c[i]!=c[max-i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    public static String base10ToBaseN(int value, int n) {
-        int maxPower=(int)(Math.log(value)/Math.log(n));
-        String s="";
-        int quotient;
-        int divisor;
-        for (int i=maxPower;i>=0;i--) {
-            divisor=(int)(Math.pow(n, i));
-            quotient=value/divisor;
-            value=value-(quotient*divisor);
-            s=s+quotient;
-        }
-        return s;
-    }
-    
-    public static boolean hasDoublePalindrome(int value) {
-        int count=0;
-        if (isPalindrome(String.valueOf(value))) {
-            count++;
-        }
-        for (int i=2;i<=9;i++) {
-            if (isPalindrome(base10ToBaseN(value,i))) {
-                count++;
-                if (count==2) {
-                    break;
-                }
-            }
-        }
-        return (count==2);
-    }
-    
+	
+	private static boolean isPalindrome (String s) {
+		int length=s.length();
+		for (int i=0;i<length/2;i++) {
+			if (s.charAt(i)!=s.charAt(length-1-i)) {
+				return false;
+			}
+		}
+		return true;
+	}
     public static void main(String[] args) throws IOException {
         BufferedReader br=new BufferedReader(new FileReader("dualpal.in"));
         StringTokenizer st=new StringTokenizer(br.readLine());
-        int count=Integer.parseInt(st.nextToken());
-        int num=Integer.parseInt(st.nextToken())+1;
+        int n=Integer.parseInt(st.nextToken());
+        int s=Integer.parseInt(st.nextToken());
+        
         PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter("dualpal.out")));
-        for (;count>0;num++) {
-            if (hasDoublePalindrome(num)) {
-                pw.println(num);
-                count--;
-            }
+        int total=0;
+        for (int i=s+1;total<n;i++) {
+        	int palinCount=0;
+        	for (int base=2;base<=10;base++) {
+        		if (isPalindrome(Integer.toString(i, base))) {
+        			palinCount++;
+        			if (palinCount>=2) {
+        				break;
+        			}
+        		}
+        	}
+        	if (palinCount>=2) {
+        		total++;
+        		pw.println(i);
+        	}
         }
         pw.close();
-        System.exit(0);
     }
-    
 }
