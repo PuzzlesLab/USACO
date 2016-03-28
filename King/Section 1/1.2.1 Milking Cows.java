@@ -3,81 +3,74 @@ ID: king8791
 LANG: JAVA
 TASK: milk2
 */
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 class milk2 {
-    
-    public static void main(String[] args) throws IOException {
-        BufferedReader br=new BufferedReader(new FileReader("milk2.in"));
-        int count=Integer.parseInt(br.readLine())*2;
-        int [] times=new int[count];
-        boolean [] checkIn=new boolean[count];
-        StringTokenizer st;
-        for (int i=0;i<count;i+=2) {
-            st=new StringTokenizer(br.readLine());
-            times[i]=Integer.parseInt(st.nextToken());
-            checkIn[i]=true;
-            times[i+1]=Integer.parseInt(st.nextToken());
-            checkIn[i+1]=false;
-        }
-        int tempInt;
-        boolean tempBool;
-        for (int i=0;i<count-1;i++) {
-            int shortestIndex=i;
-            for (int i2=i+1;i2<count;i2++) {
-                if (times[i2]<times[shortestIndex]) {
-                    shortestIndex=i2;
-                } else if (times[i2]==times[shortestIndex]) {
-                    if (checkIn[i2]) {
-                        shortestIndex=i2; //If check in and check out occurs at the same time, check in first.
-                    }
-                }
-            }
-            if (shortestIndex!=i) {
-                tempInt=times[i];
-                tempBool=checkIn[i];
-                times[i]=times[shortestIndex];
-                checkIn[i]=checkIn[shortestIndex];
-                times[shortestIndex]=tempInt;
-                checkIn[shortestIndex]=tempBool;
-            }
-        }
-        int farmerCount=0;
-        int checkInTime=0;
-        int checkOutTime=times[0];
-        int idleInterval=0;
-        int busyInterval=times[1]-times[0];
-        for (int i=0;i<count;i++) {
-            if (checkIn[i]) {
-                farmerCount++;
-                if (farmerCount==1) {
-                    checkInTime=times[i];
-                    int lastIdle=times[i]-checkOutTime;
-                    if (lastIdle>idleInterval) {
-                        idleInterval=lastIdle;
-                    }
-                }
-            } else {
-                farmerCount--;
-                if (farmerCount==0) {
-                    checkOutTime=times[i];
-                    int lastBusy=times[i]-checkInTime;
-                    if (lastBusy>busyInterval) {
-                        busyInterval=lastBusy;
-                    }
-                }
-            }
-        }
-        PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter("milk2.out")));
-        pw.println(busyInterval+" "+idleInterval);
-        pw.close();
-        System.exit(0);
-    }
-    
+	
+	static class Time implements Comparable<Time> {
+		int time;
+		int enter;
+		
+		public int compareTo (Time t) {
+			if (this.time==t.time) {
+				return this.enter-t.enter;
+			}
+			return this.time-t.time;
+		}
+	}
+	
+	public static void main (String[]args) throws IOException  {
+		BufferedReader br=new BufferedReader(new FileReader("milk2.in"));
+		int caseCount=Integer.parseInt(br.readLine());
+		Time [] times=new Time[caseCount*2];
+		for (int i=0;i<caseCount;i++) {
+			StringTokenizer st=new StringTokenizer(br.readLine());
+			Time t=new Time();
+			
+			t.time=Integer.parseInt(st.nextToken());
+			t.enter=0;
+			times[i*2]=t;
+			
+			t=new Time();
+			t.time=Integer.parseInt(st.nextToken());
+			t.enter=1;
+			times[i*2+1]=t;
+		}
+		br.close();
+		
+		Arrays.sort(times);
+		int currentCount=0;
+		int lastEmptyTime=times[0].time;
+		int lastHasFarmerTime=0;
+		int maxEmpty=0;
+		int maxFarmer=0;
+		
+		for (int i=0;i<times.length;i++) {
+			if (times[i].enter==0) {
+				if (currentCount==0) {
+					maxEmpty=Math.max(times[i].time-lastEmptyTime,maxEmpty);
+					lastHasFarmerTime=times[i].time;
+				}
+				currentCount++;
+			} else {
+				currentCount--;
+				if (currentCount==0) {
+					maxFarmer=Math.max(times[i].time-lastHasFarmerTime, maxFarmer);
+					lastEmptyTime=times[i].time;
+				}
+			}
+		}
+		
+		PrintWriter pw=new PrintWriter(new BufferedWriter(new FileWriter("milk2.out")));
+		pw.println(maxFarmer+" "+maxEmpty);
+		pw.close();
+	}
 }
